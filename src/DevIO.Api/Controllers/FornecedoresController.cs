@@ -57,7 +57,7 @@ namespace DevIO.Api.Controllers
             if (!result)
                 return BadRequest();
 
-            return Ok(fornecedor);
+            return Ok(result);
         }
 
         [HttpPut("{id:guid}")]
