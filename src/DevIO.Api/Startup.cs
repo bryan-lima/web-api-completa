@@ -47,6 +47,14 @@ namespace DevIO.Api
                 options.SuppressModelStateInvalidFilter = true;
             });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("Development", 
+                                  builder => builder.AllowAnyOrigin()
+                                                    .AllowAnyMethod()
+                                                    .AllowAnyHeader());
+            });
+
             services.ResolveDependencies();
         }
 
@@ -59,6 +67,8 @@ namespace DevIO.Api
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DevIO.Api v1"));
             }
+
+            app.UseCors("Development");
 
             app.UseHttpsRedirection();
 
