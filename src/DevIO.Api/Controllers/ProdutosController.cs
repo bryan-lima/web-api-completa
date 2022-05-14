@@ -71,6 +71,8 @@ namespace DevIO.Api.Controllers
             if (produto == null)
                 return NotFound();
 
+            ExcluirArquivo(produto.Imagem);
+
             await _produtoService.Remover(id);
 
             return CustomResponse(produto);
@@ -97,6 +99,22 @@ namespace DevIO.Api.Controllers
             System.IO.File.WriteAllBytes(filePath, imageDataByteArray);
 
             return true;
+        }
+
+        private bool ExcluirArquivo(string imgNome)
+        {
+            if (imgNome is null)
+                return false;
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", imgNome);
+
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+                return true;
+            }
+
+            return false;
         }
 
         private async Task<ProdutoViewModel> ObterProduto(Guid id)
