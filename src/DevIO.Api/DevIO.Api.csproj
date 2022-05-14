@@ -18,4 +18,8 @@
     <ProjectReference Include="..\DevIO.Data\DevIO.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\imagens\" />
+  </ItemGroup>
+
 </Project>
