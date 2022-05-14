@@ -1,0 +1,55 @@
+<main role="main" class="pb-3">
+
+
+  <h1>Lista de Produtos</h1>
+  <hr>
+
+  <p>
+    <a class="btn btn-info" [routerLink]="['/cadastro-produtos']">Novo Produto</a>
+  </p>
+
+  <table class="table table-hover">
+    <thead class="thead-dark">
+      <tr>
+        <th></th>
+        <th>Nome</th>
+        <th>Fornecedor</th>
+        <th>Valor</th>
+        <th>Ativo?</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor='let produto of produtos'>
+        <td>
+          <img src="assets/{{ produto.imagem }}" title="{{ produto.nome }}" alt="{{ produto.imagem }}" style="width: 70px; height: 100px">
+        </td>
+        <td>
+          {{ produto.nome }}
+        </td>
+        <td>
+          {{ produto.nomeFornecedor }}
+        </td>
+        <td>
+          {{ produto.valor | currency:'BRL':symbol:'1.2-2' }}
+        </td>
+        <td>
+          <input class="check-box" [checked]="produto.ativo === true" type="checkbox">
+        </td>
+        <td class="text-right">
+          <a class="btn btn-warning" href="#">
+            <span class="fa fa-search"></span>
+          </a>
+          <a class="btn btn-info" href="#">
+            <span class="fa fa-pencil-alt"></span>
+          </a>
+          <a class="btn btn-danger" href="#">
+            <span class="fa fa-trash"></span>
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+
+</main>

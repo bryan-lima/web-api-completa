@@ -1,0 +1,32 @@
+<h3 style="padding-top: 50px">Login </h3>
+
+<hr>
+<div class="row">
+  <div class="col-md-10">
+    <form (ngSubmit)="login()" [formGroup]="userForm">
+
+
+      <div class="alert alert-danger" *ngIf="errors.length > 0">
+        <h3 id="msgRetorno">Opa! Alguma coisa não deu certo:</h3>
+        <ul>
+          <li *ngFor="let error of errors">{{ error }}</li>
+        </ul>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label" for="Nome">Email</label>
+        <input formControlName="email" class="form-control" type="text" name="email">
+      </div>
+
+      <div class="form-group">
+        <label class="control-label" for="Nome">Senha</label>
+        <input formControlName="password" class="form-control" type="password" name="password">
+      </div>
+
+      <div class="form-group">
+        <input type="submit" value="Login" class="btn btn-primary">
+      </div>
+
+    </form>
+  </div>
+</div>

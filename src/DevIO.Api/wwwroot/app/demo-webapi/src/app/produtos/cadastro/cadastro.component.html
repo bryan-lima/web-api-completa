@@ -1,0 +1,76 @@
+<h3 style="padding-top: 50px">Novo Produto </h3>
+
+<hr>
+<div class="row">
+  <div class="col-md-10">
+    <form enctype="multipart/form-data" (ngSubmit)="cadastrarProduto()" [formGroup]="produtoForm">
+
+
+      <div class="alert alert-danger" *ngIf="errors.length > 0">
+        <h3 id="msgRetorno">Opa! Alguma coisa não deu certo:</h3>
+        <ul>
+          <li *ngFor="let error of errors">{{ error }}</li>
+        </ul>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label" for="FornecedorId">Fornecedor</label>
+        <select class="form-control" data-val="true" formControlName="fornecedorId"
+          data-val-required="O campo Fornecedor é obrigatório" id="FornecedorId" name="FornecedorId">
+          <option></option>
+          <option *ngFor='let fornecedor of fornecedores' value="{{ fornecedor.id }}">{{ fornecedor.nome }}</option>
+        </select>
+
+        <span class="text-danger field-validation-valid" data-valmsg-for="FornecedorId"
+          data-valmsg-replace="true"></span>
+      </div>
+      <div class="form-group">
+        <label class="control-label" for="Nome">Nome</label>
+        <input formControlName="nome" class="form-control" type="text" data-val="true"
+          data-val-length="O campo Nome precisa ter entre 2 e 200 caracteres" data-val-length-max="200"
+          data-val-length-min="2" data-val-required="O campo Nome é obrigatório" id="Nome" maxlength="200" name="Nome"
+          value="">
+        <span class="text-danger field-validation-valid" data-valmsg-for="Nome" data-valmsg-replace="true"></span>
+      </div>
+      <div class="form-group">
+        <label class="control-label" for="Descricao">Descrição</label>
+        <textarea formControlName="descricao" cols="40" rows="5" class="form-control" data-val="true"
+          data-val-length="O campo Descrição precisa ter entre 2 e 1000 caracteres" data-val-length-max="1000"
+          data-val-length-min="2" data-val-required="O campo Descrição é obrigatório" id="Descricao" maxlength="1000"
+          name="Descricao"></textarea>
+        <span class="text-danger field-validation-valid" data-valmsg-for="Descricao" data-valmsg-replace="true"></span>
+      </div>
+      <div class="form-group">
+        <label class="control-label" for="ImagemUpload">Imagem do Produto</label>
+
+        <div class="custom-file">
+          <input accept="image/jpeg" #fileInput (change)="upload(fileInput.files)" formControlName="imagemUpload"
+            type="file" class="custom-file-input" id="ImagemUpload" name="ImagemUpload" data-val="true"
+            data-val-required="Preencha o campo Imagem">
+          <label data-browse="Procurar" style="width: 400px" class="custom-file-label" for="ImagemUpload"></label>
+          <label *ngIf="imagemNome" id="img_nome">{{imagemNome}}</label>
+        </div>
+
+        <span class="text-danger field-validation-valid" data-valmsg-for="ImagemUpload"
+          data-valmsg-replace="true"></span>
+      </div>
+      <div class="form-group">
+        <label class="control-label" for="Valor">Valor</label>
+        <input formControlName="valor" class="form-control" type="text" data-val="true"
+          data-val-moeda="Moeda em formato inválido" data-val-number="Moeda em formato inválido"
+          data-val-required="O campo Valor é obrigatório" id="Valor" name="Valor" value="0,00">
+        <span class="text-danger field-validation-valid" data-valmsg-for="Valor" data-valmsg-replace="true"></span>
+      </div>
+      <div class="form-group form-check">
+        <label class="form-check-label">
+          <input formControlName="ativo" class="form-check-input" type="checkbox" data-val="true"
+            data-val-required="The Ativo? field is required." id="Ativo" name="Ativo" value="true"> Ativo?
+        </label>
+      </div>
+      <div class="form-group">
+        <input type="submit" value="Cadastrar" class="btn btn-primary">
+        <a class="btn btn-info" [routerLink]="['/lista-produtos']">Voltar</a>
+      </div>
+    </form>
+  </div>
+</div>

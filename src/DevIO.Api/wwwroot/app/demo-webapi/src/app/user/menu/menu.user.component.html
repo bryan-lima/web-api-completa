@@ -1,0 +1,4 @@
+<ul [ngSwitch]="userLogado()" class="nav navbar-nav navbar-right">
+        <li *ngSwitchCase="false"><a  class="nav-link text-dark" [routerLink]="['/entrar']">Entrar</a></li>
+        <li *ngSwitchCase="true"><a  class="nav-link text-dark">{{ saudacao }}</a></li>
+</ul>
