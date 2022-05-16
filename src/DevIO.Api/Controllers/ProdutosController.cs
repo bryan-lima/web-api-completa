@@ -31,7 +31,14 @@ namespace DevIO.Api.Controllers
         [HttpGet]
         public async Task<IEnumerable<ProdutoViewModel>> ObterTodos()
         {
-            return _mapper.Map<IEnumerable<ProdutoViewModel>>(await _produtoRepository.ObterProdutosFornecedores());
+            var produtosViewModel = _mapper.Map<IEnumerable<ProdutoViewModel>>(await _produtoRepository.ObterProdutosFornecedores());
+
+            foreach (var produtoViewModel in produtosViewModel)
+            {
+                produtoViewModel.ImagemUpload = ObterArquivo(produtoViewModel.Imagem);
+            }
+
+            return produtosViewModel;
         }
 
         [HttpGet("{id:guid}")]
@@ -101,6 +108,19 @@ namespace DevIO.Api.Controllers
             return true;
         }
 
+        private string ObterArquivo(string imgNome)
+        {
+            if (imgNome is null)
+                return null;
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", imgNome);
+
+            if (System.IO.File.Exists(filePath))
+                return $"data:image/{imgNome.Substring(imgNome.Length - 3)};base64,{Convert.ToBase64String(System.IO.File.ReadAllBytes(filePath))}";
+
+            return null;
+        }
+
         private bool ExcluirArquivo(string imgNome)
         {
             if (imgNome is null)
@@ -119,7 +139,11 @@ namespace DevIO.Api.Controllers
 
         private async Task<ProdutoViewModel> ObterProduto(Guid id)
         {
-            return _mapper.Map<ProdutoViewModel>(await _produtoRepository.ObterProdutoFornecedor(id));
+            var produtoViewModel = _mapper.Map<ProdutoViewModel>(await _produtoRepository.ObterProdutoFornecedor(id));
+            
+            produtoViewModel.ImagemUpload = ObterArquivo(produtoViewModel.Imagem);
+
+            return produtoViewModel;
         }
     }
 }
