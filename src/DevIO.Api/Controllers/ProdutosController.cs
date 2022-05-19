@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DevIO.Api.Extensions;
 using DevIO.Api.ViewModels;
 using DevIO.Business.Intefaces;
 using DevIO.Business.Models;
@@ -72,7 +73,10 @@ namespace DevIO.Api.Controllers
         }
 
         [HttpPost("adicionar")]
-        public async Task<ActionResult<ProdutoImagemViewModel>> AdicionarAlternativo(ProdutoImagemViewModel produtoViewModel)
+        public async Task<ActionResult<ProdutoImagemViewModel>> AdicionarAlternativo(
+            // Binder personalizado para envio de IFormFile e ViewModel dentro de um FormData compatível com .NET Core 3.1 ou superior (system.text.json)
+            [ModelBinder(BinderType = typeof(JsonWithFilesFormDataModelBinder))]
+            ProdutoImagemViewModel produtoViewModel)
         {
             if (!ModelState.IsValid)
                 return CustomResponse(ModelState);
@@ -92,7 +96,7 @@ namespace DevIO.Api.Controllers
         //[DisableRequestSizeLimit]
         [RequestSizeLimit(40000000)] // Limitando upload em 40 MB
         [HttpPost("imagem")]
-        public async Task<ActionResult<ProdutoImagemViewModel>> AdicionarImagem(IFormFile file)
+        public ActionResult AdicionarImagem(IFormFile file)
         {
             return Ok(file);
         }

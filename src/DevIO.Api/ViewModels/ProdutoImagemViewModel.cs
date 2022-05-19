@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DevIO.Api.Extensions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -7,6 +9,8 @@ using System.Threading.Tasks;
 
 namespace DevIO.Api.ViewModels
 {
+    // Binder personalizado para envio de IFormFile e ViewModel dentro de um FormData compatível com .NET Core 3.1 ou superior (system.text.json)
+    [ModelBinder(BinderType = typeof(JsonWithFilesFormDataModelBinder))]
     public class ProdutoImagemViewModel
     {
         [Key]
