@@ -58,6 +58,8 @@ namespace DevIO.Api
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DevIO.Api v1"));
             }
 
+            app.UseAuthentication();
+
             app.UseMvcConfiguration();
 
             app.UseEndpoints(endpoints =>
