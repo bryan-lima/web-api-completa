@@ -53,12 +53,14 @@ namespace DevIO.Api
         {
             if (env.IsDevelopment())
             {
+                app.UseCors("Development");
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DevIO.Api v1"));
             }
             else
             {
+                app.UseCors("Production");
                 app.UseHsts();
             }
 
