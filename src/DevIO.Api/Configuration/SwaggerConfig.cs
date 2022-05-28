@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -81,6 +82,11 @@ namespace DevIO.Api.Configuration
             {
                 return;
             }
+
+            var apiVersionMetadata = context.ApiDescription.ActionDescriptor.EndpointMetadata.OfType<ApiVersionAttribute>().FirstOrDefault();
+            
+            if (apiVersionMetadata != null)
+                operation.Deprecated = apiVersionMetadata?.Deprecated ?? false;
 
             foreach (var parameter in operation.Parameters)
             {
