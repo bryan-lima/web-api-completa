@@ -43,6 +43,8 @@ namespace DevIO.Api
 
             services.AddSwaggerConfig();
 
+            services.AddLoggingConfiguration();
+
             services.ResolveDependencies();
         }
 
@@ -70,6 +72,8 @@ namespace DevIO.Api
             {
                 endpoints.MapControllers();
             });
+
+            app.UseLoggingConfiguration();
         }
     }
 }
