@@ -46,14 +46,7 @@ namespace DevIO.Api
 
             services.AddSwaggerConfig();
 
-            services.AddLoggingConfiguration();
-
-            services.AddHealthChecks()
-                    .AddCheck("Produtos", new SqlServerHealthCheck(Configuration.GetConnectionString("DefaultConnection")))
-                    .AddSqlServer(Configuration.GetConnectionString("DefaultConnection"), name: "BancoSQL");
-
-            services.AddHealthChecksUI()
-                .AddSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
+            services.AddLoggingConfiguration(Configuration);
 
             services.ResolveDependencies();
         }
