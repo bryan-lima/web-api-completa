@@ -46,6 +46,8 @@ namespace DevIO.Api
 
             services.AddLoggingConfiguration();
 
+            services.AddHealthChecks();
+
             services.ResolveDependencies();
         }
 
@@ -77,6 +79,8 @@ namespace DevIO.Api
             });
 
             app.UseLoggingConfiguration();
+
+            app.UseHealthChecks("/hc");
         }
     }
 }
