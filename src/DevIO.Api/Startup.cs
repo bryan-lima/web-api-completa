@@ -46,7 +46,8 @@ namespace DevIO.Api
 
             services.AddLoggingConfiguration();
 
-            services.AddHealthChecks();
+            services.AddHealthChecks()
+                    .AddSqlServer(Configuration.GetConnectionString("DefaultConnection"), name: "BancoSQL");
 
             services.ResolveDependencies();
         }
