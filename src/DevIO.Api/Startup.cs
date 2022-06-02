@@ -1,7 +1,9 @@
 using DevIO.Api.Configuration;
 using DevIO.Api.Extensions;
 using DevIO.Data.Context;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +49,11 @@ namespace DevIO.Api
             services.AddLoggingConfiguration();
 
             services.AddHealthChecks()
+                    .AddCheck("Produtos", new SqlServerHealthCheck(Configuration.GetConnectionString("DefaultConnection")))
                     .AddSqlServer(Configuration.GetConnectionString("DefaultConnection"), name: "BancoSQL");
+
+            services.AddHealthChecksUI()
+                .AddSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
 
             services.ResolveDependencies();
         }
@@ -58,7 +64,7 @@ namespace DevIO.Api
             if (env.IsDevelopment())
             {
                 app.UseCors("Development");
-                app.UseDeveloperExceptionPage();                
+                app.UseDeveloperExceptionPage();
             }
             else
             {
@@ -77,11 +83,25 @@ namespace DevIO.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
+                endpoints.MapHealthChecks("/api/hc", new HealthCheckOptions()
+                {
+                    Predicate = _ => true,
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
+
+                endpoints.MapHealthChecksUI(options =>
+                {
+                    options.UIPath = "/api/hc-ui";
+                    options.ResourcesPath = "/api/hc-ui-resources";
+
+                    options.UseRelativeApiPath = false;
+                    options.UseRelativeResourcesPath = false;
+                    options.UseRelativeWebhookPath = false;
+                });
             });
 
             app.UseLoggingConfiguration();
-
-            app.UseHealthChecks("/hc");
         }
     }
 }
