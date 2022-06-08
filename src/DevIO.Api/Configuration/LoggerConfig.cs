@@ -15,10 +15,10 @@ namespace DevIO.Api.Configuration
     {
         public static IServiceCollection AddLoggingConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddElmahIo(o =>
+            services.AddElmahIo(options =>
             {
-                o.ApiKey = "ab4390cb8f0a44f29ed0d05bfe79a0b2";
-                o.LogId = new Guid("e2581f7f-4466-463f-82ea-924d73aa4e77");
+                options.ApiKey = "ab4390cb8f0a44f29ed0d05bfe79a0b2";
+                options.LogId = new Guid("e2581f7f-4466-463f-82ea-924d73aa4e77");
             });
 
             //services.AddLogging(builder => 

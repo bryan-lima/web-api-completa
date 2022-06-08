@@ -18,7 +18,7 @@ namespace DevIO.Api.Configuration
             services.AddApiVersioning(options => 
             {
                 options.AssumeDefaultVersionWhenUnspecified = true;
-                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.DefaultApiVersion = new ApiVersion(majorVersion: 1, minorVersion: 0);
                 options.ReportApiVersions = true;
             });
 
@@ -35,22 +35,22 @@ namespace DevIO.Api.Configuration
 
             services.AddCors(options =>
             {
-                options.AddPolicy("Development",
-                                  builder => builder.AllowAnyOrigin()
-                                                    .AllowAnyMethod()
-                                                    .AllowAnyHeader());
+                options.AddPolicy(name: "Development",
+                                  configurePolicy: builder => builder.AllowAnyOrigin()
+                                                                     .AllowAnyMethod()
+                                                                     .AllowAnyHeader());
 
                 //options.AddDefaultPolicy(builder => builder.AllowAnyOrigin()
                 //                                           .AllowAnyMethod()
                 //                                           .AllowAnyHeader()
                 //                                           .AllowCredentials());
 
-                options.AddPolicy("Production",
-                                  builder => builder.WithMethods("GET")
-                                                    .WithOrigins("http://desenvolvedor.io")
-                                                    .SetIsOriginAllowedToAllowWildcardSubdomains()
-                                                    //.WithHeaders(HeaderNames.ContentType, "x-custom-header")
-                                                    .AllowAnyHeader());
+                options.AddPolicy(name: "Production",
+                                  configurePolicy: builder => builder.WithMethods("GET")
+                                                                     .WithOrigins("http://desenvolvedor.io")
+                                                                     .SetIsOriginAllowedToAllowWildcardSubdomains()
+                                                                     //.WithHeaders(HeaderNames.ContentType, "x-custom-header")
+                                                                     .AllowAnyHeader());
             });
 
             return services;

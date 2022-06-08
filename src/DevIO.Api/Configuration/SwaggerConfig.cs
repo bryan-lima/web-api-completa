@@ -18,11 +18,12 @@ namespace DevIO.Api.Configuration
     {
         public static IServiceCollection AddSwaggerConfig(this IServiceCollection services)
         {
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(options =>
             {
-                c.OperationFilter<SwaggerDefaultValues>();
+                options.OperationFilter<SwaggerDefaultValues>();
 
-               c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+               options.AddSecurityDefinition(name: "Bearer", 
+                                             securityScheme: new OpenApiSecurityScheme
                 {
                     Description = "Insira o token JWT desta maneira: Bearer {seu token}",
                     Name = "Authorization",
@@ -32,7 +33,7 @@ namespace DevIO.Api.Configuration
                     Type = SecuritySchemeType.ApiKey
                 });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
                         new OpenApiSecurityScheme
@@ -58,7 +59,7 @@ namespace DevIO.Api.Configuration
             app.UseSwagger();
             app.UseSwaggerUI(options => 
             {
-                foreach (var description in provider.ApiVersionDescriptions)
+                foreach (ApiVersionDescription description in provider.ApiVersionDescriptions)
                 {
                     options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
                 }
@@ -76,7 +77,7 @@ namespace DevIO.Api.Configuration
 
         public void Configure(SwaggerGenOptions options)
         {
-            foreach(var description in provider.ApiVersionDescriptions)
+            foreach(ApiVersionDescription description in provider.ApiVersionDescriptions)
             {
                 options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
             }
@@ -84,7 +85,7 @@ namespace DevIO.Api.Configuration
 
         static OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription description)
         {
-            var info = new OpenApiInfo()
+            OpenApiInfo _info = new OpenApiInfo()
             {
                 Title = "API - desenvolvedor.io",
                 Version = description.ApiVersion.ToString(),
@@ -95,10 +96,10 @@ namespace DevIO.Api.Configuration
 
             if (description.IsDeprecated)
             {
-                info.Description += " Esta versão está obsoleta!";
+                _info.Description += " Esta versão está obsoleta!";
             }
 
-            return info;
+            return _info;
         }
     }
 
@@ -111,35 +112,36 @@ namespace DevIO.Api.Configuration
                 return;
             }
 
-            var apiVersionMetadata = context.ApiDescription.ActionDescriptor.EndpointMetadata.OfType<ApiVersionAttribute>().FirstOrDefault();
+            ApiVersionAttribute _apiVersionMetadata = context.ApiDescription.ActionDescriptor.EndpointMetadata.OfType<ApiVersionAttribute>()
+                                                                                                              .FirstOrDefault();
             
-            if (apiVersionMetadata != null)
-                operation.Deprecated = apiVersionMetadata?.Deprecated ?? false;
+            if (_apiVersionMetadata != null)
+                operation.Deprecated = _apiVersionMetadata?.Deprecated ?? false;
 
-            foreach (var parameter in operation.Parameters)
+            foreach (OpenApiParameter parameter in operation.Parameters)
             {
-                var description = context.ApiDescription.ParameterDescriptions.First(p => p.Name == parameter.Name);
+                ApiParameterDescription _description = context.ApiDescription.ParameterDescriptions.First(p => p.Name == parameter.Name);
 
-                var routeInfo = description.RouteInfo;
+                ApiParameterRouteInfo _routeInfo = _description.RouteInfo;
 
                 operation.Deprecated = OpenApiOperation.DeprecatedDefault;
 
                 if (parameter.Description == null)
                 {
-                    parameter.Description = description.ModelMetadata?.Description;
+                    parameter.Description = _description.ModelMetadata?.Description;
                 }
 
-                if (routeInfo == null)
+                if (_routeInfo == null)
                 {
                     continue;
                 }
 
                 if (parameter.In != ParameterLocation.Path && parameter.Schema.Default == null)
                 {
-                    parameter.Schema.Default = new OpenApiString(routeInfo.DefaultValue.ToString());
+                    parameter.Schema.Default = new OpenApiString(_routeInfo.DefaultValue.ToString());
                 }
 
-                parameter.Required |= !routeInfo.IsOptional;
+                parameter.Required |= !_routeInfo.IsOptional;
             }
         }
     }
