@@ -16,41 +16,39 @@ namespace DevIO.Api.Controllers
     [Route("api/v{version:apiVersion}/fornecedores")]
     public class FornecedoresController : MainController
     {
+        private readonly IEnderecoRepository _enderecoRepository;
         private readonly IFornecedorRepository _fornecedorRepository;
         private readonly IFornecedorService _fornecedorService;
-        private readonly IEnderecoRepository _enderecoRepository;
         private readonly IMapper _mapper;
 
-        public FornecedoresController(IFornecedorRepository fornecedorRepository,
+        public FornecedoresController(IEnderecoRepository enderecoRepository, 
+                                      IFornecedorRepository fornecedorRepository,
                                       IFornecedorService fornecedorService,
-                                      IEnderecoRepository enderecoRepository,
                                       IMapper mapper,
                                       INotificador notificador,
                                       IUser user) : base(notificador, user)
         {
+            _enderecoRepository = enderecoRepository;
             _fornecedorRepository = fornecedorRepository;
             _fornecedorService = fornecedorService;
-            _enderecoRepository = enderecoRepository;
             _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IEnumerable<FornecedorViewModel>> ObterTodos()
         {
-            var fornecedor = _mapper.Map<IEnumerable<FornecedorViewModel>>(await _fornecedorRepository.ObterTodos());
-
-            return fornecedor;
+            return _mapper.Map<IEnumerable<FornecedorViewModel>>(await _fornecedorRepository.ObterTodos());
         }
 
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<FornecedorViewModel>> ObterPorId(Guid id)
         {
-            var fornecedor = await ObterFornecedorProdutosEndereco(id);
+            FornecedorViewModel _fornecedor = await ObterFornecedorProdutosEndereco(id);
 
-            if (fornecedor == null)
+            if (_fornecedor == null)
                 return NotFound();
 
-            return fornecedor;
+            return _fornecedor;
         }
 
         [ClaimsAuthorize("Fornecedor", "Adicionar")]
@@ -87,14 +85,14 @@ namespace DevIO.Api.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<FornecedorViewModel>> Excluir(Guid id)
         {
-            var fornecedorViewModel = await ObterFornecedorEndereco(id);
+            FornecedorViewModel _fornecedorViewModel = await ObterFornecedorEndereco(id);
 
-            if (fornecedorViewModel == null)
+            if (_fornecedorViewModel == null)
                 return NotFound();
 
             await _fornecedorService.Remover(id);
 
-            return CustomResponse(fornecedorViewModel);
+            return CustomResponse(_fornecedorViewModel);
         }
 
         [HttpGet("endereco/{id:guid}")]

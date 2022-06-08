@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace DevIO.Api.Controllers
@@ -19,43 +18,43 @@ namespace DevIO.Api.Controllers
     [Route("api/v{version:apiVersion}/produtos")]
     public class ProdutosController : MainController
     {
+        private readonly IMapper _mapper;
         private readonly IProdutoRepository _produtoRepository;
         private readonly IProdutoService _produtoService;
-        private readonly IMapper _mapper;
 
-        public ProdutosController(IProdutoRepository produtoRepository, 
-                                  IProdutoService produtoService, 
-                                  IMapper mapper,
+        public ProdutosController(IMapper mapper,
                                   INotificador notificador,
+                                  IProdutoRepository produtoRepository, 
+                                  IProdutoService produtoService, 
                                   IUser user) : base(notificador, user)
         {
+            _mapper = mapper;
             _produtoRepository = produtoRepository;
             _produtoService = produtoService;
-            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IEnumerable<ProdutoViewModel>> ObterTodos()
         {
-            var produtosViewModel = _mapper.Map<IEnumerable<ProdutoViewModel>>(await _produtoRepository.ObterProdutosFornecedores());
+            IEnumerable<ProdutoViewModel> _produtosViewModel = _mapper.Map<IEnumerable<ProdutoViewModel>>(await _produtoRepository.ObterProdutosFornecedores());
 
-            foreach (var produtoViewModel in produtosViewModel)
+            foreach (ProdutoViewModel produtoViewModel in _produtosViewModel)
             {
                 produtoViewModel.ImagemUpload = ObterArquivo(produtoViewModel.Imagem);
             }
 
-            return produtosViewModel;
+            return _produtosViewModel;
         }
 
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<ProdutoViewModel>> ObterPorId(Guid id)
         {
-            var produtoViewModel = await ObterProduto(id);
+            ProdutoViewModel _produtoViewModel = await ObterProduto(id);
 
-            if (produtoViewModel == null)
+            if (_produtoViewModel == null)
                 return NotFound();
 
-            return produtoViewModel;
+            return _produtoViewModel;
         }
 
         [ClaimsAuthorize("Produto", "Adicionar")]
@@ -65,12 +64,12 @@ namespace DevIO.Api.Controllers
             if (!ModelState.IsValid)
                 return CustomResponse(ModelState);
 
-            var imagemNome = Guid.NewGuid() + "_" + produtoViewModel.Imagem;
+            string _imagemNome = $"{Guid.NewGuid()}_{produtoViewModel.Imagem}";
 
-            if (!UploadArquivo(produtoViewModel.ImagemUpload, imagemNome))
+            if (!UploadArquivo(produtoViewModel.ImagemUpload, _imagemNome))
                 return CustomResponse(produtoViewModel);
 
-            produtoViewModel.Imagem = imagemNome;
+            produtoViewModel.Imagem = _imagemNome;
 
             await _produtoService.Adicionar(_mapper.Map<Produto>(produtoViewModel));
 
@@ -87,29 +86,29 @@ namespace DevIO.Api.Controllers
                 return CustomResponse();
             }
 
-            var produtoAtualizacao = await ObterProduto(id);
+            ProdutoViewModel _produtoAtualizacao = await ObterProduto(id);
 
-            produtoViewModel.Imagem = produtoAtualizacao.Imagem;
+            produtoViewModel.Imagem = _produtoAtualizacao.Imagem;
 
             if (!ModelState.IsValid)
                 return CustomResponse(ModelState);
 
             if (produtoViewModel.ImagemUpload != null)
             {
-                var imagemNome = Guid.NewGuid() + "_" + produtoViewModel.Imagem;
+                string _imagemNome = $"{Guid.NewGuid()}_{produtoViewModel.Imagem}";
 
-                if (!UploadArquivo(produtoViewModel.ImagemUpload, imagemNome))
+                if (!UploadArquivo(produtoViewModel.ImagemUpload, _imagemNome))
                     return CustomResponse(ModelState);
 
-                produtoAtualizacao.Imagem = imagemNome;
+                _produtoAtualizacao.Imagem = _imagemNome;
             }
 
-            produtoAtualizacao.Nome = produtoViewModel.Nome;
-            produtoAtualizacao.Descricao = produtoViewModel.Descricao;
-            produtoAtualizacao.Valor = produtoViewModel.Valor;
-            produtoAtualizacao.Ativo = produtoViewModel.Ativo;
+            _produtoAtualizacao.Nome = produtoViewModel.Nome;
+            _produtoAtualizacao.Descricao = produtoViewModel.Descricao;
+            _produtoAtualizacao.Valor = produtoViewModel.Valor;
+            _produtoAtualizacao.Ativo = produtoViewModel.Ativo;
 
-            await _produtoService.Atualizar(_mapper.Map<Produto>(produtoAtualizacao));
+            await _produtoService.Atualizar(_mapper.Map<Produto>(_produtoAtualizacao));
 
             return CustomResponse(produtoViewModel);
         }
@@ -124,12 +123,12 @@ namespace DevIO.Api.Controllers
             if (!ModelState.IsValid)
                 return CustomResponse(ModelState);
 
-            var imgPrefixo = Guid.NewGuid() + "_";
+            string _prefixo = $"{Guid.NewGuid()}_";
 
-            if (!await UploadArquivoAlternativo(produtoViewModel.ImagemUpload, imgPrefixo))
+            if (!await UploadArquivoAlternativo(produtoViewModel.ImagemUpload, _prefixo))
                 return CustomResponse(ModelState);
 
-            produtoViewModel.Imagem = imgPrefixo + produtoViewModel.ImagemUpload.FileName;
+            produtoViewModel.Imagem = _prefixo + produtoViewModel.ImagemUpload.FileName;
 
             await _produtoService.Adicionar(_mapper.Map<Produto>(produtoViewModel));
 
@@ -148,19 +147,19 @@ namespace DevIO.Api.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<ProdutoViewModel>> Excluir(Guid id)
         {
-            var produto = await ObterProduto(id);
+            ProdutoViewModel _produto = await ObterProduto(id);
 
-            if (produto == null)
+            if (_produto == null)
                 return NotFound();
 
-            ExcluirArquivo(produto.Imagem);
+            ExcluirArquivo(_produto.Imagem);
 
             await _produtoService.Remover(id);
 
-            return CustomResponse(produto);
+            return CustomResponse(_produto);
         }
 
-        private bool UploadArquivo(string arquivo, string imgNome)
+        private bool UploadArquivo(string arquivo, string imagemNome)
         {
             if (string.IsNullOrEmpty(arquivo))
             {
@@ -168,22 +167,22 @@ namespace DevIO.Api.Controllers
                 return false;
             }
 
-            var imageDataByteArray = Convert.FromBase64String(arquivo);
+            byte[] _imageDataByteArray = Convert.FromBase64String(arquivo);
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", imgNome);
+            string _filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", imagemNome);
 
-            if (System.IO.File.Exists(filePath))
+            if (System.IO.File.Exists(_filePath))
             {
                 NotificarErro("Já existe um arquivo com este nome!");
                 return false;
             }
 
-            System.IO.File.WriteAllBytes(filePath, imageDataByteArray);
+            System.IO.File.WriteAllBytes(_filePath, _imageDataByteArray);
 
             return true;
         }
 
-        private async Task<bool> UploadArquivoAlternativo(IFormFile arquivo, string imgPrefixo)
+        private async Task<bool> UploadArquivoAlternativo(IFormFile arquivo, string prefixo)
         {
             if (arquivo == null || arquivo.Length == 0)
             {
@@ -191,15 +190,15 @@ namespace DevIO.Api.Controllers
                 return false;
             }
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", imgPrefixo + arquivo.FileName);
+            string _path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", prefixo + arquivo.FileName);
 
-            if (System.IO.File.Exists(path))
+            if (System.IO.File.Exists(_path))
             {
                 NotificarErro("Já existe um arquivo com este nome!");
                 return false;
             }
 
-            using (var stream = new FileStream(path, FileMode.Create))
+            using (var stream = new FileStream(_path, FileMode.Create))
             {
                 await arquivo.CopyToAsync(stream);
             }
@@ -207,29 +206,29 @@ namespace DevIO.Api.Controllers
             return true;
         }
 
-        private string ObterArquivo(string imgNome)
+        private string ObterArquivo(string imagemNome)
         {
-            if (imgNome is null)
+            if (imagemNome is null)
                 return null;
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", imgNome);
+            string _filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", imagemNome);
 
-            if (System.IO.File.Exists(filePath))
-                return $"data:image/{imgNome.Substring(imgNome.Length - 3)};base64,{Convert.ToBase64String(System.IO.File.ReadAllBytes(filePath))}";
+            if (System.IO.File.Exists(_filePath))
+                return $"data:image/{imagemNome.Substring(imagemNome.Length - 3)};base64,{Convert.ToBase64String(System.IO.File.ReadAllBytes(_filePath))}";
 
             return null;
         }
 
-        private bool ExcluirArquivo(string imgNome)
+        private bool ExcluirArquivo(string imagemNome)
         {
-            if (imgNome is null)
+            if (imagemNome is null)
                 return false;
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", imgNome);
+            string _filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", imagemNome);
 
-            if (System.IO.File.Exists(filePath))
+            if (System.IO.File.Exists(_filePath))
             {
-                System.IO.File.Delete(filePath);
+                System.IO.File.Delete(_filePath);
                 return true;
             }
 
@@ -238,11 +237,11 @@ namespace DevIO.Api.Controllers
 
         private async Task<ProdutoViewModel> ObterProduto(Guid id)
         {
-            var produtoViewModel = _mapper.Map<ProdutoViewModel>(await _produtoRepository.ObterProdutoFornecedor(id));
+            ProdutoViewModel _produtoViewModel = _mapper.Map<ProdutoViewModel>(await _produtoRepository.ObterProdutoFornecedor(id));
             
-            produtoViewModel.ImagemUpload = ObterArquivo(produtoViewModel.Imagem);
+            _produtoViewModel.ImagemUpload = ObterArquivo(_produtoViewModel.Imagem);
 
-            return produtoViewModel;
+            return _produtoViewModel;
         }
     }
 }

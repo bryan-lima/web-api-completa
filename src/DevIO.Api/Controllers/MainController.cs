@@ -1,9 +1,9 @@
 ﻿using DevIO.Business.Intefaces;
 using DevIO.Business.Notificacoes;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DevIO.Api.Controllers
@@ -47,7 +47,8 @@ namespace DevIO.Api.Controllers
             return BadRequest(new
             {
                 success = false,
-                errors = _notificador.ObterNotificacoes().Select(n => n.Mensagem)
+                errors = _notificador.ObterNotificacoes()
+                                     .Select(notificacao => notificacao.Mensagem)
             });
         }
 
@@ -61,11 +62,12 @@ namespace DevIO.Api.Controllers
 
         protected void NotificarErroModelInvalida(ModelStateDictionary modelState)
         {
-            var erros = modelState.Values.SelectMany(e => e.Errors);
-            foreach (var erro in erros)
+            IEnumerable<ModelError> _erros = modelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors);
+
+            foreach (ModelError erro in _erros)
             {
-                var errorMsg = erro.Exception == null ? erro.ErrorMessage : erro.Exception.Message;
-                NotificarErro(errorMsg);
+                string _mensagemErro = erro.Exception == null ? erro.ErrorMessage : erro.Exception.Message;
+                NotificarErro(_mensagemErro);
             }
         }
 

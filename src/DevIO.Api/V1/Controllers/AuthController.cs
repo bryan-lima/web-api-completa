@@ -20,22 +20,22 @@ namespace DevIO.Api.Controllers
     [Route("api/v{version:apiVersion}")]
     public class AuthController : MainController
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
         private readonly AppSettings _appSettings;
         private readonly ILogger _logger;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public AuthController(INotificador notificador,
+        public AuthController(ILogger<AuthController> logger,
+                              INotificador notificador,
+                              IOptions<AppSettings> appSettings,
                               SignInManager<IdentityUser> signInManager,
                               UserManager<IdentityUser> userManager,
-                              IOptions<AppSettings> appSettings,
-                              IUser user, 
-                              ILogger<AuthController> logger) : base(notificador, user)
+                              IUser user) : base(notificador, user)
         {
-            _signInManager = signInManager;
-            _userManager = userManager;
             _appSettings = appSettings.Value;
             _logger = logger;
+            _signInManager = signInManager;
+            _userManager = userManager;
         }
 
         [HttpPost("nova-conta")]
@@ -44,22 +44,22 @@ namespace DevIO.Api.Controllers
             if (!ModelState.IsValid)
                 return CustomResponse(ModelState);
 
-            var user = new IdentityUser
+            IdentityUser _user = new IdentityUser
             {
                 UserName = registerUser.Email,
                 Email = registerUser.Email,
                 EmailConfirmed = true
             };
 
-            var result = await _userManager.CreateAsync(user, registerUser.Password);
+            IdentityResult _result = await _userManager.CreateAsync(_user, registerUser.Password);
 
-            if (result.Succeeded)
+            if (_result.Succeeded)
             {
-                await _signInManager.SignInAsync(user, false);
-                return CustomResponse(await GerarJwt(user.Email));
+                await _signInManager.SignInAsync(_user, false);
+                return CustomResponse(await GerarJwt(_user.Email));
             }
 
-            foreach (var error in result.Errors)
+            foreach (IdentityError error in _result.Errors)
             {
                 NotificarErro(error.Description);
             }
@@ -73,15 +73,15 @@ namespace DevIO.Api.Controllers
             if (!ModelState.IsValid)
                 return CustomResponse(ModelState);
 
-            var result = await _signInManager.PasswordSignInAsync(loginUser.Email, loginUser.Password, false, true);
+            var _result = await _signInManager.PasswordSignInAsync(loginUser.Email, loginUser.Password, false, true);
 
-            if (result.Succeeded)
+            if (_result.Succeeded)
             {
-                _logger.LogInformation("Usuário " + loginUser.Email + " logado com sucesso");
+                _logger.LogInformation($"Usuário {loginUser.Email} logado com sucesso");
                 return CustomResponse(await GerarJwt(loginUser.Email));
             }
 
-            if (result.IsLockedOut)
+            if (_result.IsLockedOut)
             {
                 NotificarErro("Usuário temporariamente bloqueado por tentativas inválidas");
                 return CustomResponse(loginUser);
@@ -93,50 +93,48 @@ namespace DevIO.Api.Controllers
 
         private async Task<LoginResponseViewModel> GerarJwt(string email)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            var claims = await _userManager.GetClaimsAsync(user);
-            var userRoles = await _userManager.GetRolesAsync(user);
+            IdentityUser _user = await _userManager.FindByEmailAsync(email);
+            IList<Claim> _claims = await _userManager.GetClaimsAsync(_user);
+            IList<string> _userRoles = await _userManager.GetRolesAsync(_user);
 
-            claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Id));
-            claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
-            claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
-            claims.Add(new Claim(JwtRegisteredClaimNames.Nbf, ToUnixEpochDate(DateTime.UtcNow).ToString()));
-            claims.Add(new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(DateTime.UtcNow).ToString(), ClaimValueTypes.Integer64));
+            _claims.Add(new Claim(JwtRegisteredClaimNames.Sub, _user.Id));
+            _claims.Add(new Claim(JwtRegisteredClaimNames.Email, _user.Email));
+            _claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
+            _claims.Add(new Claim(JwtRegisteredClaimNames.Nbf, ToUnixEpochDate(DateTime.UtcNow).ToString()));
+            _claims.Add(new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(DateTime.UtcNow).ToString(), ClaimValueTypes.Integer64));
 
-            foreach (var userRole in userRoles)
-            {
-                claims.Add(new Claim("role", userRole));
-            }
+            foreach (string userRole in _userRoles)
+                _claims.Add(new Claim("role", userRole));
 
-            var identityClaims = new ClaimsIdentity();
-            identityClaims.AddClaims(claims);
+            ClaimsIdentity _identityClaims = new ClaimsIdentity();
+            _identityClaims.AddClaims(_claims);
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-            var token = tokenHandler.CreateToken(new SecurityTokenDescriptor 
+            JwtSecurityTokenHandler _tokenHandler = new JwtSecurityTokenHandler();
+            byte[] _key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+            SecurityToken _token = _tokenHandler.CreateToken(new SecurityTokenDescriptor 
             {
                 Issuer = _appSettings.Emissor,
                 Audience = _appSettings.ValidoEm,
-                Subject = identityClaims,
+                Subject = _identityClaims,
                 Expires = DateTime.UtcNow.AddHours(_appSettings.ExpiracaoHoras),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(_key), SecurityAlgorithms.HmacSha256Signature)
             });
 
-            var encodedToken = tokenHandler.WriteToken(token);
+            string _encodedToken = _tokenHandler.WriteToken(_token);
 
-            var response = new LoginResponseViewModel
+            LoginResponseViewModel _response = new LoginResponseViewModel
             {
-                AccessToken = encodedToken,
+                AccessToken = _encodedToken,
                 ExpiresIn = TimeSpan.FromHours(_appSettings.ExpiracaoHoras).TotalSeconds,
                 UserToken = new UserTokenViewModel
                 {
-                    Id = user.Id,
-                    Email = user.Email,
-                    Claims = claims.Select(c => new ClaimViewModel { Type = c.Type, Value = c.Value })
+                    Id = _user.Id,
+                    Email = _user.Email,
+                    Claims = _claims.Select(claim => new ClaimViewModel { Type = claim.Type, Value = claim.Value })
                 },
             };
 
-            return response;
+            return _response;
         }
 
         private static long ToUnixEpochDate(DateTime date) => (long)Math.Round((date.ToUniversalTime() - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds);
