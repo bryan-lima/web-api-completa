@@ -12,22 +12,22 @@ namespace DevIO.Api.Extensions
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
-            if (bindingContext == null)
+            if (bindingContext is null)
             {
                 throw new ArgumentNullException(nameof(bindingContext));
             }
 
-            var serializeOptions = new JsonSerializerOptions
+            JsonSerializerOptions _serializeOptions = new JsonSerializerOptions
             {
                 WriteIndented = true,
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                 PropertyNameCaseInsensitive = true
             };
 
-            var produtoImagemViewModel = JsonSerializer.Deserialize<ProdutoImagemViewModel>(bindingContext.ValueProvider.GetValue("produto").FirstOrDefault(), serializeOptions);
-            produtoImagemViewModel.ImagemUpload = bindingContext.ActionContext.HttpContext.Request.Form.Files.FirstOrDefault();
+            ProdutoImagemViewModel _produtoImagemViewModel = JsonSerializer.Deserialize<ProdutoImagemViewModel>(bindingContext.ValueProvider.GetValue("produto").FirstOrDefault(), _serializeOptions);
+            _produtoImagemViewModel.ImagemUpload = bindingContext.ActionContext.HttpContext.Request.Form.Files.FirstOrDefault();
 
-            bindingContext.Result = ModelBindingResult.Success(produtoImagemViewModel);
+            bindingContext.Result = ModelBindingResult.Success(_produtoImagemViewModel);
             return Task.CompletedTask;
         }
     }

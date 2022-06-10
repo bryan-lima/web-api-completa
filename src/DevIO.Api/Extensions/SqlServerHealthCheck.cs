@@ -21,14 +21,14 @@ namespace DevIO.Api.Extensions
         {
             try
             {
-                using (var connection = new SqlConnection(_connection))
+                using (SqlConnection connection = new SqlConnection(_connection))
                 {
                     await connection.OpenAsync(cancellationToken);
 
-                    var command = connection.CreateCommand();
-                    command.CommandText = "select count(id) from produtos";
+                    SqlCommand _command = connection.CreateCommand();
+                    _command.CommandText = "select count(id) from produtos";
 
-                    return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) > 0 ? HealthCheckResult.Healthy() : HealthCheckResult.Unhealthy();
+                    return Convert.ToInt32(await _command.ExecuteScalarAsync(cancellationToken)) > 0 ? HealthCheckResult.Healthy() : HealthCheckResult.Unhealthy();
                 }
             }
             catch (Exception)

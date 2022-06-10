@@ -26,7 +26,7 @@ namespace DevIO.Api.Extensions
 
         public string GetUserEmail()
         {
-            return IsAuthenticated() ? _accessor.HttpContext.User.GetUserEmail() : "";
+            return IsAuthenticated() ? _accessor.HttpContext.User.GetUserEmail() : string.Empty;
         }
         public bool IsAuthenticated()
         {
@@ -48,24 +48,20 @@ namespace DevIO.Api.Extensions
     {
         public static string GetUserId(this ClaimsPrincipal principal)
         {
-            if (principal == null)
-            {
+            if (principal is null)
                 throw new ArgumentException(nameof(principal));
-            }
 
-            var claim = principal.FindFirst(ClaimTypes.NameIdentifier);
-            return claim?.Value;
+            Claim _claim = principal.FindFirst(ClaimTypes.NameIdentifier);
+            return _claim?.Value;
         }
 
         public static string GetUserEmail(this ClaimsPrincipal principal)
         {
-            if (principal == null)
-            {
+            if (principal is null)
                 throw new ArgumentException(nameof(principal));
-            }
 
-            var claim = principal.FindFirst(ClaimTypes.Email);
-            return claim?.Value;
+            Claim _claim = principal.FindFirst(ClaimTypes.Email);
+            return _claim?.Value;
         }
     }
 }
