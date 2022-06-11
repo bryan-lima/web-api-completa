@@ -27,15 +27,13 @@ namespace DevIO.Api
 
         public Startup(IWebHostEnvironment hostEnvironment)
         {
-            var builder = new ConfigurationBuilder().SetBasePath(hostEnvironment.ContentRootPath)
-                                                    .AddJsonFile("appsettings.json", true, true)
-                                                    .AddJsonFile($"appsetings.{hostEnvironment.EnvironmentName}.json", true, true)
-                                                    .AddEnvironmentVariables();
+            IConfigurationBuilder builder = new ConfigurationBuilder().SetBasePath(hostEnvironment.ContentRootPath)
+                                                                      .AddJsonFile(path: "appsettings.json", optional: true, reloadOnChange: true)
+                                                                      .AddJsonFile(path: $"appsetings.{hostEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                                                                      .AddEnvironmentVariables();
 
             if (hostEnvironment.IsDevelopment())
-            {
                 builder.AddUserSecrets<Startup>();
-            }
 
             Configuration = builder.Build();
         }
