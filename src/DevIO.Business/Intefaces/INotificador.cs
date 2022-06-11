@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using DevIO.Business.Notificacoes;
+﻿using DevIO.Business.Notificacoes;
+using System.Collections.Generic;
 
 namespace DevIO.Business.Intefaces
 {
