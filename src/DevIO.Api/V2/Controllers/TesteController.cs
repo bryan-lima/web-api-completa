@@ -1,12 +1,8 @@
 ﻿using DevIO.Api.Controllers;
 using DevIO.Business.Intefaces;
-using Elmah.Io.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DevIO.Api.V2.Controllers
 {
