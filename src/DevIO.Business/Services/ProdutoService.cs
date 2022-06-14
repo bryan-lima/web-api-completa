@@ -12,7 +12,7 @@ namespace DevIO.Business.Services
         private readonly IUser _user;
 
         public ProdutoService(IProdutoRepository produtoRepository,
-                              INotificador notificador, 
+                              INotificador notificador,
                               IUser user) : base(notificador)
         {
             _produtoRepository = produtoRepository;
@@ -21,7 +21,9 @@ namespace DevIO.Business.Services
 
         public async Task Adicionar(Produto produto)
         {
-            if (!ExecutarValidacao(new ProdutoValidation(), produto)) return;
+            if (!ExecutarValidacao(validacao: new ProdutoValidation(),
+                                   entidade: produto))
+                return;
 
             //var user = _user.GetUserId();
 
@@ -30,7 +32,9 @@ namespace DevIO.Business.Services
 
         public async Task Atualizar(Produto produto)
         {
-            if (!ExecutarValidacao(new ProdutoValidation(), produto)) return;
+            if (!ExecutarValidacao(validacao: new ProdutoValidation(),
+                                   entidade: produto))
+                return;
 
             await _produtoRepository.Atualizar(produto);
         }

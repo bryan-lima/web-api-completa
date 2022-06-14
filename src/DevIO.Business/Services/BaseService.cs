@@ -17,10 +17,8 @@ namespace DevIO.Business.Services
 
         protected void Notificar(ValidationResult validationResult)
         {
-            foreach (var error in validationResult.Errors)
-            {
+            foreach (ValidationFailure error in validationResult.Errors)
                 Notificar(error.ErrorMessage);
-            }
         }
 
         protected void Notificar(string mensagem)
@@ -30,11 +28,12 @@ namespace DevIO.Business.Services
 
         protected bool ExecutarValidacao<TV, TE>(TV validacao, TE entidade) where TV : AbstractValidator<TE> where TE : Entity
         {
-            var validator = validacao.Validate(entidade);
+            ValidationResult _validacao = validacao.Validate(entidade);
 
-            if(validator.IsValid) return true;
+            if (_validacao.IsValid)
+                return true;
 
-            Notificar(validator);
+            Notificar(_validacao);
 
             return false;
         }
