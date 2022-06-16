@@ -8,32 +8,32 @@ namespace DevIO.Data.Mappings
     {
         public void Configure(EntityTypeBuilder<Endereco> builder)
         {
-            builder.HasKey(p => p.Id);
+            builder.HasKey(endereco => endereco.Id);
 
-            builder.Property(c => c.Logradouro)
+            builder.Property(endereco => endereco.Logradouro)
                 .IsRequired()
                 .HasColumnType("varchar(200)");
 
-            builder.Property(c => c.Numero)
+            builder.Property(endereco => endereco.Numero)
                 .IsRequired()
                 .HasColumnType("varchar(50)");
 
-            builder.Property(c => c.Cep)
+            builder.Property(endereco => endereco.Cep)
                 .IsRequired()
                 .HasColumnType("varchar(8)");
 
-            builder.Property(c => c.Complemento)
+            builder.Property(endereco => endereco.Complemento)
                 .HasColumnType("varchar(250)");
 
-            builder.Property(c => c.Bairro)
+            builder.Property(endereco => endereco.Bairro)
                 .IsRequired()
                 .HasColumnType("varchar(100)");
 
-            builder.Property(c => c.Cidade)
+            builder.Property(endereco => endereco.Cidade)
                 .IsRequired()
                 .HasColumnType("varchar(100)");
 
-            builder.Property(c => c.Estado)
+            builder.Property(endereco => endereco.Estado)
                 .IsRequired()
                 .HasColumnType("varchar(50)");
 

@@ -8,24 +8,24 @@ namespace DevIO.Data.Mappings
     {
         public void Configure(EntityTypeBuilder<Fornecedor> builder)
         {
-            builder.HasKey(p => p.Id);
+            builder.HasKey(fornecedor => fornecedor.Id);
 
-            builder.Property(p => p.Nome)
+            builder.Property(fornecedor => fornecedor.Nome)
                 .IsRequired()
                 .HasColumnType("varchar(200)");
 
-            builder.Property(p => p.Documento)
+            builder.Property(fornecedor => fornecedor.Documento)
                 .IsRequired()
                 .HasColumnType("varchar(14)");
 
             // 1 : 1 => Fornecedor : Endereco
-            builder.HasOne(f => f.Endereco)
-                .WithOne(e => e.Fornecedor);
+            builder.HasOne(fornecedor => fornecedor.Endereco)
+                .WithOne(endereco => endereco.Fornecedor);
 
             // 1 : N => Fornecedor : Produtos
-            builder.HasMany(f => f.Produtos)
-                .WithOne(p => p.Fornecedor)
-                .HasForeignKey(p => p.FornecedorId);
+            builder.HasMany(fornecedor => fornecedor.Produtos)
+                .WithOne(produto => produto.Fornecedor)
+                .HasForeignKey(produto => produto.FornecedorId);
 
             builder.ToTable("Fornecedores");
         }

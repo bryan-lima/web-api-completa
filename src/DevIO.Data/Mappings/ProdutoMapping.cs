@@ -8,17 +8,17 @@ namespace DevIO.Data.Mappings
     {
         public void Configure(EntityTypeBuilder<Produto> builder)
         {
-            builder.HasKey(p => p.Id);
+            builder.HasKey(produto => produto.Id);
 
-            builder.Property(p => p.Nome)
+            builder.Property(produto => produto.Nome)
                 .IsRequired()
                 .HasColumnType("varchar(200)");
 
-            builder.Property(p => p.Descricao)
+            builder.Property(produto => produto.Descricao)
                 .IsRequired()
                 .HasColumnType("varchar(1000)");
 
-            builder.Property(p => p.Imagem)
+            builder.Property(produto => produto.Imagem)
                 .IsRequired()
                 .HasColumnType("varchar(100)");
 
