@@ -1,12 +1,12 @@
-﻿using System;
+﻿using DevIO.Business.Intefaces;
+using DevIO.Business.Models;
+using DevIO.Data.Context;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using DevIO.Business.Intefaces;
-using DevIO.Business.Models;
-using DevIO.Data.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace DevIO.Data.Repository
 {
@@ -23,7 +23,9 @@ namespace DevIO.Data.Repository
 
         public async Task<IEnumerable<TEntity>> Buscar(Expression<Func<TEntity, bool>> predicate)
         {
-            return await DbSet.AsNoTracking().Where(predicate).ToListAsync();
+            return await DbSet.AsNoTracking()
+                              .Where(predicate)
+                              .ToListAsync();
         }
 
         public virtual async Task<TEntity> ObterPorId(Guid id)
