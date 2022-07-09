@@ -8,6 +8,8 @@ namespace DevIO.Business.Intefaces
 {
     public interface IRepository<TEntity> : IDisposable where TEntity : Entity
     {
+        #region Public Methods
+
         Task Adicionar(TEntity entity);
         Task<TEntity> ObterPorId(Guid id);
         Task<List<TEntity>> ObterTodos();
@@ -15,5 +17,7 @@ namespace DevIO.Business.Intefaces
         Task Remover(Guid id);
         Task<IEnumerable<TEntity>> Buscar(Expression<Func<TEntity, bool>> predicate);
         Task<int> SaveChanges();
+
+        #endregion Public Methods
     }
 }
