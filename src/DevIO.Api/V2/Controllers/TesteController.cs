@@ -10,7 +10,13 @@ namespace DevIO.Api.V2.Controllers
     [Route("api/v{version:apiVersion}/teste")]
     public class TesteController : MainController
     {
+        #region Private Fields
+
         private readonly ILogger _logger;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public TesteController(ILogger<TesteController> logger,
                                INotificador notificador,
@@ -18,6 +24,10 @@ namespace DevIO.Api.V2.Controllers
         {
             _logger = logger;
         }
+
+        #endregion Public Constructors
+
+        #region GET
 
         [HttpGet]
         public string Valor()
@@ -43,5 +53,7 @@ namespace DevIO.Api.V2.Controllers
 
             return "Sou a V2";
         }
+
+        #endregion GET
     }
 }

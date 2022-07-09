@@ -16,12 +16,18 @@ namespace DevIO.Api.Controllers
     [Route("api/v{version:apiVersion}/fornecedores")]
     public class FornecedoresController : MainController
     {
+        #region Private Fields
+
         private readonly IEnderecoRepository _enderecoRepository;
         private readonly IFornecedorRepository _fornecedorRepository;
         private readonly IFornecedorService _fornecedorService;
         private readonly IMapper _mapper;
 
-        public FornecedoresController(IEnderecoRepository enderecoRepository, 
+        #endregion Private Fields
+
+        #region Public Constructors
+
+        public FornecedoresController(IEnderecoRepository enderecoRepository,
                                       IFornecedorRepository fornecedorRepository,
                                       IFornecedorService fornecedorService,
                                       IMapper mapper,
@@ -34,6 +40,10 @@ namespace DevIO.Api.Controllers
             _mapper = mapper;
         }
 
+        #endregion Public Constructors
+
+        #region GET
+
         [HttpGet]
         public async Task<IEnumerable<FornecedorViewModel>> ObterTodos()
         {
@@ -45,11 +55,21 @@ namespace DevIO.Api.Controllers
         {
             FornecedorViewModel _fornecedor = await ObterFornecedorProdutosEndereco(id);
 
-            if (_fornecedor == null)
+            if (_fornecedor is null)
                 return NotFound();
 
             return _fornecedor;
         }
+
+        [HttpGet("endereco/{id:guid}")]
+        public async Task<EnderecoViewModel> ObterEnderecoPorId(Guid id)
+        {
+            return _mapper.Map<EnderecoViewModel>(await _enderecoRepository.ObterPorId(id));
+        }
+
+        #endregion GET
+
+        #region POST
 
         [ClaimsAuthorize("Fornecedor", "Adicionar")]
         [HttpPost]
@@ -62,6 +82,10 @@ namespace DevIO.Api.Controllers
 
             return CustomResponse(fornecedorViewModel);
         }
+
+        #endregion POST
+
+        #region PUT
 
         [ClaimsAuthorize("Fornecedor", "Atualizar")]
         [HttpPut("{id:guid}")]
@@ -81,26 +105,6 @@ namespace DevIO.Api.Controllers
             return CustomResponse(fornecedorViewModel);
         }
 
-        [ClaimsAuthorize("Fornecedor", "Excluir")]
-        [HttpDelete("{id:guid}")]
-        public async Task<ActionResult<FornecedorViewModel>> Excluir(Guid id)
-        {
-            FornecedorViewModel _fornecedorViewModel = await ObterFornecedorEndereco(id);
-
-            if (_fornecedorViewModel == null)
-                return NotFound();
-
-            await _fornecedorService.Remover(id);
-
-            return CustomResponse(_fornecedorViewModel);
-        }
-
-        [HttpGet("endereco/{id:guid}")]
-        public async Task<EnderecoViewModel> ObterEnderecoPorId(Guid id)
-        {
-            return _mapper.Map<EnderecoViewModel>(await _enderecoRepository.ObterPorId(id));
-        }
-
         [ClaimsAuthorize("Fornecedor", "Atualizar")]
         [HttpPut("endereco/{id:guid}")]
         public async Task<IActionResult> AtualizarEndereco(Guid id, EnderecoViewModel enderecoViewModel)
@@ -115,9 +119,31 @@ namespace DevIO.Api.Controllers
                 return CustomResponse(ModelState);
 
             await _fornecedorService.AtualizarEndereco(_mapper.Map<Endereco>(enderecoViewModel));
-            
+
             return CustomResponse(enderecoViewModel);
         }
+
+        #endregion PUT
+
+        #region DELETE
+
+        [ClaimsAuthorize("Fornecedor", "Excluir")]
+        [HttpDelete("{id:guid}")]
+        public async Task<ActionResult<FornecedorViewModel>> Excluir(Guid id)
+        {
+            FornecedorViewModel _fornecedorViewModel = await ObterFornecedorEndereco(id);
+
+            if (_fornecedorViewModel is null)
+                return NotFound();
+
+            await _fornecedorService.Remover(id);
+
+            return CustomResponse(_fornecedorViewModel);
+        }
+
+        #endregion DELETE
+
+        #region Private Methods
 
         private async Task<FornecedorViewModel> ObterFornecedorProdutosEndereco(Guid id)
         {
@@ -128,5 +154,7 @@ namespace DevIO.Api.Controllers
         {
             return _mapper.Map<FornecedorViewModel>(await _fornecedorRepository.ObterFornecedorEndereco(id));
         }
+
+        #endregion Private Methods
     }
 }

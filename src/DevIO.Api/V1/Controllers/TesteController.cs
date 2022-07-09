@@ -8,16 +8,24 @@ namespace DevIO.Api.V1.Controllers
     [Route("api/v{version:apiVersion}/teste")]
     public class TesteController : MainController
     {
-        public TesteController(INotificador notificador, 
+        #region Public Constructors
+
+        public TesteController(INotificador notificador,
                                IUser appUser) : base(notificador, appUser)
         {
 
         }
+
+        #endregion Public Constructors
+
+        #region GET
 
         [HttpGet]
         public string Valor()
         {
             return "Sou a V1";
         }
+
+        #endregion GET
     }
 }

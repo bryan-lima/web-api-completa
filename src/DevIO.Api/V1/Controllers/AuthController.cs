@@ -13,6 +13,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace DevIO.Api.Controllers
 {
@@ -20,10 +21,16 @@ namespace DevIO.Api.Controllers
     [Route("api/v{version:apiVersion}")]
     public class AuthController : MainController
     {
+        #region Private Fields
+
         private readonly AppSettings _appSettings;
         private readonly ILogger _logger;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public AuthController(ILogger<AuthController> logger,
                               INotificador notificador,
@@ -38,13 +45,17 @@ namespace DevIO.Api.Controllers
             _userManager = userManager;
         }
 
+        #endregion Public Constructors
+
+        #region POST
+
         [HttpPost("nova-conta")]
         public async Task<ActionResult> Registrar(RegisterUserViewModel registerUser)
         {
             if (!ModelState.IsValid)
                 return CustomResponse(ModelState);
 
-            IdentityUser _user = new IdentityUser
+            IdentityUser _user = new()
             {
                 UserName = registerUser.Email,
                 Email = registerUser.Email,
@@ -73,7 +84,7 @@ namespace DevIO.Api.Controllers
             if (!ModelState.IsValid)
                 return CustomResponse(ModelState);
 
-            var _result = await _signInManager.PasswordSignInAsync(loginUser.Email, loginUser.Password, false, true);
+            SignInResult _result = await _signInManager.PasswordSignInAsync(loginUser.Email, loginUser.Password, false, true);
 
             if (_result.Succeeded)
             {
@@ -91,6 +102,10 @@ namespace DevIO.Api.Controllers
             return CustomResponse(loginUser);
         }
 
+        #endregion POST
+
+        #region Private Methods
+
         private async Task<LoginResponseViewModel> GerarJwt(string email)
         {
             IdentityUser _user = await _userManager.FindByEmailAsync(email);
@@ -106,12 +121,12 @@ namespace DevIO.Api.Controllers
             foreach (string userRole in _userRoles)
                 _claims.Add(new Claim("role", userRole));
 
-            ClaimsIdentity _identityClaims = new ClaimsIdentity();
+            ClaimsIdentity _identityClaims = new();
             _identityClaims.AddClaims(_claims);
 
-            JwtSecurityTokenHandler _tokenHandler = new JwtSecurityTokenHandler();
+            JwtSecurityTokenHandler _tokenHandler = new();
             byte[] _key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-            SecurityToken _token = _tokenHandler.CreateToken(new SecurityTokenDescriptor 
+            SecurityToken _token = _tokenHandler.CreateToken(new SecurityTokenDescriptor
             {
                 Issuer = _appSettings.Emissor,
                 Audience = _appSettings.ValidoEm,
@@ -122,7 +137,7 @@ namespace DevIO.Api.Controllers
 
             string _encodedToken = _tokenHandler.WriteToken(_token);
 
-            LoginResponseViewModel _response = new LoginResponseViewModel
+            LoginResponseViewModel _response = new()
             {
                 AccessToken = _encodedToken,
                 ExpiresIn = TimeSpan.FromHours(_appSettings.ExpiracaoHoras).TotalSeconds,
@@ -138,5 +153,7 @@ namespace DevIO.Api.Controllers
         }
 
         private static long ToUnixEpochDate(DateTime date) => (long)Math.Round((date.ToUniversalTime() - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds);
+
+        #endregion Private Methods
     }
 }

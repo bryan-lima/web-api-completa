@@ -18,14 +18,20 @@ namespace DevIO.Api.Controllers
     [Route("api/v{version:apiVersion}/produtos")]
     public class ProdutosController : MainController
     {
+        #region Private Fields
+
         private readonly IMapper _mapper;
         private readonly IProdutoRepository _produtoRepository;
         private readonly IProdutoService _produtoService;
 
+        #endregion Private Fields
+
+        #region Public Constructors
+
         public ProdutosController(IMapper mapper,
                                   INotificador notificador,
-                                  IProdutoRepository produtoRepository, 
-                                  IProdutoService produtoService, 
+                                  IProdutoRepository produtoRepository,
+                                  IProdutoService produtoService,
                                   IUser user) : base(notificador, user)
         {
             _mapper = mapper;
@@ -33,15 +39,17 @@ namespace DevIO.Api.Controllers
             _produtoService = produtoService;
         }
 
+        #endregion Public Constructors
+
+        #region GET
+
         [HttpGet]
         public async Task<IEnumerable<ProdutoViewModel>> ObterTodos()
         {
             IEnumerable<ProdutoViewModel> _produtosViewModel = _mapper.Map<IEnumerable<ProdutoViewModel>>(await _produtoRepository.ObterProdutosFornecedores());
 
             foreach (ProdutoViewModel produtoViewModel in _produtosViewModel)
-            {
                 produtoViewModel.ImagemUpload = ObterArquivo(produtoViewModel.Imagem);
-            }
 
             return _produtosViewModel;
         }
@@ -51,11 +59,15 @@ namespace DevIO.Api.Controllers
         {
             ProdutoViewModel _produtoViewModel = await ObterProduto(id);
 
-            if (_produtoViewModel == null)
+            if (_produtoViewModel is null)
                 return NotFound();
 
             return _produtoViewModel;
         }
+
+        #endregion GET
+
+        #region POST
 
         [ClaimsAuthorize("Produto", "Adicionar")]
         [HttpPost]
@@ -75,6 +87,40 @@ namespace DevIO.Api.Controllers
 
             return CustomResponse(produtoViewModel);
         }
+
+        [ClaimsAuthorize("Produto", "Adicionar")]
+        [HttpPost("adicionar")]
+        public async Task<ActionResult<ProdutoImagemViewModel>> AdicionarAlternativo(
+            // Binder personalizado para envio de IFormFile e ViewModel dentro de um FormData compatível com .NET Core 3.1 ou superior (system.text.json)
+            [ModelBinder(BinderType = typeof(JsonWithFilesFormDataModelBinder))]
+            ProdutoImagemViewModel produtoViewModel)
+        {
+            if (!ModelState.IsValid)
+                return CustomResponse(ModelState);
+
+            string _prefixo = $"{Guid.NewGuid()}_";
+
+            if (!await UploadArquivoAlternativo(produtoViewModel.ImagemUpload, _prefixo))
+                return CustomResponse(ModelState);
+
+            produtoViewModel.Imagem = _prefixo + produtoViewModel.ImagemUpload.FileName;
+
+            await _produtoService.Adicionar(_mapper.Map<Produto>(produtoViewModel));
+
+            return CustomResponse(produtoViewModel);
+        }
+
+        //[DisableRequestSizeLimit]
+        [RequestSizeLimit(40000000)] // Limitando upload em 40 MB
+        [HttpPost("imagem")]
+        public ActionResult AdicionarImagem(IFormFile file)
+        {
+            return Ok(file);
+        }
+
+        #endregion POST
+
+        #region PUT
 
         [ClaimsAuthorize("Produto", "Atualizar")]
         [HttpPut("{id:guid}")]
@@ -113,35 +159,9 @@ namespace DevIO.Api.Controllers
             return CustomResponse(produtoViewModel);
         }
 
-        [ClaimsAuthorize("Produto", "Adicionar")]
-        [HttpPost("adicionar")]
-        public async Task<ActionResult<ProdutoImagemViewModel>> AdicionarAlternativo(
-            // Binder personalizado para envio de IFormFile e ViewModel dentro de um FormData compatível com .NET Core 3.1 ou superior (system.text.json)
-            [ModelBinder(BinderType = typeof(JsonWithFilesFormDataModelBinder))]
-            ProdutoImagemViewModel produtoViewModel)
-        {
-            if (!ModelState.IsValid)
-                return CustomResponse(ModelState);
+        #endregion PUT
 
-            string _prefixo = $"{Guid.NewGuid()}_";
-
-            if (!await UploadArquivoAlternativo(produtoViewModel.ImagemUpload, _prefixo))
-                return CustomResponse(ModelState);
-
-            produtoViewModel.Imagem = _prefixo + produtoViewModel.ImagemUpload.FileName;
-
-            await _produtoService.Adicionar(_mapper.Map<Produto>(produtoViewModel));
-
-            return CustomResponse(produtoViewModel);
-        }
-
-        //[DisableRequestSizeLimit]
-        [RequestSizeLimit(40000000)] // Limitando upload em 40 MB
-        [HttpPost("imagem")]
-        public ActionResult AdicionarImagem(IFormFile file)
-        {
-            return Ok(file);
-        }
+        #region DELETE
 
         [ClaimsAuthorize("Produto", "Excluir")]
         [HttpDelete("{id:guid}")]
@@ -149,7 +169,7 @@ namespace DevIO.Api.Controllers
         {
             ProdutoViewModel _produto = await ObterProduto(id);
 
-            if (_produto == null)
+            if (_produto is null)
                 return NotFound();
 
             ExcluirArquivo(_produto.Imagem);
@@ -158,6 +178,10 @@ namespace DevIO.Api.Controllers
 
             return CustomResponse(_produto);
         }
+
+        #endregion DELETE
+
+        #region Private Methods
 
         private bool UploadArquivo(string arquivo, string imagemNome)
         {
@@ -184,7 +208,7 @@ namespace DevIO.Api.Controllers
 
         private async Task<bool> UploadArquivoAlternativo(IFormFile arquivo, string prefixo)
         {
-            if (arquivo == null || arquivo.Length == 0)
+            if (arquivo is null || arquivo.Length == 0)
             {
                 NotificarErro("Forneça uma imagem para este produto!");
                 return false;
@@ -198,7 +222,7 @@ namespace DevIO.Api.Controllers
                 return false;
             }
 
-            using (var stream = new FileStream(_path, FileMode.Create))
+            using (FileStream stream = new FileStream(_path, FileMode.Create))
             {
                 await arquivo.CopyToAsync(stream);
             }
@@ -238,10 +262,12 @@ namespace DevIO.Api.Controllers
         private async Task<ProdutoViewModel> ObterProduto(Guid id)
         {
             ProdutoViewModel _produtoViewModel = _mapper.Map<ProdutoViewModel>(await _produtoRepository.ObterProdutoFornecedor(id));
-            
+
             _produtoViewModel.ImagemUpload = ObterArquivo(_produtoViewModel.Imagem);
 
             return _produtoViewModel;
         }
+
+        #endregion Private Methods
     }
 }

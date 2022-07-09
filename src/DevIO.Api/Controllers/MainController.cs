@@ -11,13 +11,15 @@ namespace DevIO.Api.Controllers
     [ApiController]
     public abstract class MainController : ControllerBase
     {
+        #region Private Fields
+
         private readonly INotificador _notificador;
-        public readonly IUser AppUser;
 
-        protected Guid UsuarioId { get; set; }
-        protected bool UsuarioAutenticado { get; set; }
+        #endregion Private Fields
 
-        protected MainController(INotificador notificador, 
+        #region Protected Constructors
+
+        protected MainController(INotificador notificador,
                                  IUser appUser)
         {
             _notificador = notificador;
@@ -30,6 +32,23 @@ namespace DevIO.Api.Controllers
             }
         }
 
+        #endregion Protected Constructors
+
+        #region Protected Properties
+
+        protected Guid UsuarioId { get; set; }
+        protected bool UsuarioAutenticado { get; set; }
+
+        #endregion Protected Properties
+
+        #region Public Properties
+
+        public readonly IUser AppUser;
+
+        #endregion Public Properties
+
+        #region Protected Methods
+
         protected bool OperacaoValida()
         {
             return !_notificador.TemNotificacao();
@@ -38,8 +57,8 @@ namespace DevIO.Api.Controllers
         protected ActionResult CustomResponse(object result = null)
         {
             if (OperacaoValida())
-                return Ok(new 
-                { 
+                return Ok(new
+                {
                     success = true,
                     data = result
                 });
@@ -66,7 +85,7 @@ namespace DevIO.Api.Controllers
 
             foreach (ModelError erro in _erros)
             {
-                string _mensagemErro = erro.Exception == null ? erro.ErrorMessage : erro.Exception.Message;
+                string _mensagemErro = erro.Exception is null ? erro.ErrorMessage : erro.Exception.Message;
                 NotificarErro(_mensagemErro);
             }
         }
@@ -75,5 +94,7 @@ namespace DevIO.Api.Controllers
         {
             _notificador.Handle(new Notificacao(mensagem));
         }
+
+        #endregion Protected Methods
     }
 }
