@@ -1,15 +1,21 @@
-﻿using System;
-using System.Threading.Tasks;
-using DevIO.Business.Intefaces;
+﻿using DevIO.Business.Intefaces;
 using DevIO.Business.Models;
 using DevIO.Business.Models.Validations;
+using System;
+using System.Threading.Tasks;
 
 namespace DevIO.Business.Services
 {
     public class ProdutoService : BaseService, IProdutoService
     {
+        #region Private Fields
+
         private readonly IProdutoRepository _produtoRepository;
         private readonly IUser _user;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public ProdutoService(IProdutoRepository produtoRepository,
                               INotificador notificador,
@@ -18,6 +24,10 @@ namespace DevIO.Business.Services
             _produtoRepository = produtoRepository;
             _user = user;
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public async Task Adicionar(Produto produto)
         {
@@ -48,5 +58,7 @@ namespace DevIO.Business.Services
         {
             _produtoRepository?.Dispose();
         }
+
+        #endregion Public Methods
     }
 }

@@ -8,12 +8,22 @@ namespace DevIO.Business.Services
 {
     public abstract class BaseService
     {
+        #region Private Fields
+
         private readonly INotificador _notificador;
+
+        #endregion Private Fields
+
+        #region Protected Constructors
 
         protected BaseService(INotificador notificador)
         {
             _notificador = notificador;
         }
+
+        #endregion Protected Constructors
+
+        #region Protected Methods
 
         protected void Notificar(ValidationResult validationResult)
         {
@@ -37,5 +47,7 @@ namespace DevIO.Business.Services
 
             return false;
         }
+
+        #endregion Protected Methods
     }
 }

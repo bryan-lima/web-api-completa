@@ -1,16 +1,22 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using DevIO.Business.Intefaces;
+﻿using DevIO.Business.Intefaces;
 using DevIO.Business.Models;
 using DevIO.Business.Models.Validations;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DevIO.Business.Services
 {
     public class FornecedorService : BaseService, IFornecedorService
     {
+        #region Private Fields
+
         private readonly IFornecedorRepository _fornecedorRepository;
         private readonly IEnderecoRepository _enderecoRepository;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public FornecedorService(IFornecedorRepository fornecedorRepository,
                                  IEnderecoRepository enderecoRepository,
@@ -19,6 +25,10 @@ namespace DevIO.Business.Services
             _fornecedorRepository = fornecedorRepository;
             _enderecoRepository = enderecoRepository;
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public async Task<bool> Adicionar(Fornecedor fornecedor)
         {
@@ -89,5 +99,7 @@ namespace DevIO.Business.Services
             _fornecedorRepository?.Dispose();
             _enderecoRepository?.Dispose();
         }
+
+        #endregion Public Methods
     }
 }
