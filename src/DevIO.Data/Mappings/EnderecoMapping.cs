@@ -11,31 +11,31 @@ namespace DevIO.Data.Mappings
             builder.HasKey(endereco => endereco.Id);
 
             builder.Property(endereco => endereco.Logradouro)
-                .IsRequired()
-                .HasColumnType("varchar(200)");
+                   .IsRequired()
+                   .HasColumnType("varchar(200)");
 
             builder.Property(endereco => endereco.Numero)
-                .IsRequired()
-                .HasColumnType("varchar(50)");
+                   .IsRequired()
+                   .HasColumnType("varchar(50)");
 
             builder.Property(endereco => endereco.Cep)
-                .IsRequired()
-                .HasColumnType("varchar(8)");
+                   .IsRequired()
+                   .HasColumnType("varchar(8)");
 
             builder.Property(endereco => endereco.Complemento)
-                .HasColumnType("varchar(250)");
+                   .HasColumnType("varchar(250)");
 
             builder.Property(endereco => endereco.Bairro)
-                .IsRequired()
-                .HasColumnType("varchar(100)");
+                   .IsRequired()
+                   .HasColumnType("varchar(100)");
 
             builder.Property(endereco => endereco.Cidade)
-                .IsRequired()
-                .HasColumnType("varchar(100)");
+                   .IsRequired()
+                   .HasColumnType("varchar(100)");
 
             builder.Property(endereco => endereco.Estado)
-                .IsRequired()
-                .HasColumnType("varchar(50)");
+                   .IsRequired()
+                   .HasColumnType("varchar(50)");
 
             builder.ToTable("Enderecos");
         }
