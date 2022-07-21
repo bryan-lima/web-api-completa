@@ -13,23 +13,50 @@ namespace DevIO.Api.Configuration
 {
     public static class DependencyInjectionConfig
     {
+        #region Public Methods
+
         public static IServiceCollection ResolveDependencies(this IServiceCollection services)
         {
             services.AddScoped<MeuDbContext>();
+
+            #region Singleton
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            #endregion Singleton
+
+            #region Transient
+
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+
+            #endregion Transient
+
+            #region Notification
+
+            services.AddScoped<INotificador, Notificador>();
+
+            #endregion Notification
+
+            #region Repositories
+
             services.AddScoped<IFornecedorRepository, FornecedorRepository>();
             services.AddScoped<IEnderecoRepository, EnderecoRepository>();
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
 
-            services.AddScoped<INotificador, Notificador>();
+            #endregion Repositories
+
+            #region Services
+
             services.AddScoped<IFornecedorService, FornecedorService>();
             services.AddScoped<IProdutoService, ProdutoService>();
 
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddScoped<IUser, AspNetUser>();
+            #endregion Services
 
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+            services.AddScoped<IUser, AspNetUser>();
 
             return services;
         }
+
+        #endregion Public Methods
     }
 }
