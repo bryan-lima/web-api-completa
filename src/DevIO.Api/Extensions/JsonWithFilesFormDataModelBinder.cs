@@ -10,6 +10,8 @@ namespace DevIO.Api.Extensions
     // Binder personalizado para envio de IFormFile e ViewModel dentro de um FormData compatível com .NET Core 3.1 ou superior (system.text.json)
     public class JsonWithFilesFormDataModelBinder : IModelBinder
     {
+        #region Public Methods
+
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
             if (bindingContext is null)
@@ -30,5 +32,7 @@ namespace DevIO.Api.Extensions
             bindingContext.Result = ModelBindingResult.Success(_produtoImagemViewModel);
             return Task.CompletedTask;
         }
+
+        #endregion Public Methods
     }
 }

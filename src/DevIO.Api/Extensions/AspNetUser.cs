@@ -8,14 +8,28 @@ namespace DevIO.Api.Extensions
 {
     public class AspNetUser : IUser
     {
+        #region Private Fields
+
         private readonly IHttpContextAccessor _accessor;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public AspNetUser(IHttpContextAccessor accessor)
         {
             _accessor = accessor;
         }
 
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public string Name => _accessor.HttpContext.User.Identity.Name;
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public Guid GetUserId()
         {
@@ -26,6 +40,7 @@ namespace DevIO.Api.Extensions
         {
             return IsAuthenticated() ? _accessor.HttpContext.User.GetUserEmail() : string.Empty;
         }
+
         public bool IsAuthenticated()
         {
             return _accessor.HttpContext.User.Identity.IsAuthenticated;
@@ -40,10 +55,14 @@ namespace DevIO.Api.Extensions
         {
             return _accessor.HttpContext.User.Claims;
         }
+
+        #endregion Public Methods
     }
 
     public static class ClaimsPrincipalExtensions
     {
+        #region Public Methods
+
         public static string GetUserId(this ClaimsPrincipal principal)
         {
             if (principal is null)
@@ -61,5 +80,7 @@ namespace DevIO.Api.Extensions
             Claim _claim = principal.FindFirst(ClaimTypes.Email);
             return _claim?.Value;
         }
+
+        #endregion Public Methods
     }
 }
