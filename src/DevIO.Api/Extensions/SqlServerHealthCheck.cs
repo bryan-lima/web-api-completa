@@ -8,12 +8,22 @@ namespace DevIO.Api.Extensions
 {
     public class SqlServerHealthCheck : IHealthCheck
     {
+        #region Private Fields
+
         readonly string _connection;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public SqlServerHealthCheck(string connection)
         {
             _connection = connection;
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
@@ -34,5 +44,7 @@ namespace DevIO.Api.Extensions
                 return HealthCheckResult.Unhealthy();
             }
         }
+
+        #endregion Public Methods
     }
 }
