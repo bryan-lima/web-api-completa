@@ -65,6 +65,8 @@ namespace DevIO.Api
                 app.UseHsts();
             }
 
+            app.UseStaticFiles();
+
             app.UseAuthentication();
 
             app.UseMiddleware<ExceptionMiddleware>();
